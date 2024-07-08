@@ -2,15 +2,22 @@
 #include <cctype>
 
 char getSoundexCode(char c) {
-    c = toupper(c);
-    switch (c) {
-        case 'B': case 'F': case 'P': case 'V': return '1';
-        case 'C': case 'G': case 'J': case 'K': case 'Q': case 'S': case 'X': case 'Z': return '2';
-        case 'D': case 'T': return '3';
-        case 'L': return '4';
-        case 'M': case 'N': return '5';
-        case 'R': return '6';
-        default: return '0'; // For A, E, I, O, U, H, W, Y
+    static const std::unordered_map<char, char> soundexCodes = {
+        {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
+        {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'}, {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
+        {'D', '3'}, {'T', '3'},
+        {'L', '4'},
+        {'M', '5'}, {'N', '5'},
+        {'R', '6'}
+    };
+    
+    c = toupper(c); // Convert character to uppercase
+    
+    auto it = soundexCodes.find(c);
+    if (it != soundexCodes.end()) {
+        return it->second;
+    } else {
+        return '0'; // Default case for non-mapped characters
     }
 }
 
