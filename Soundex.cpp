@@ -1,6 +1,11 @@
+#include <iostream>
 #include "Soundex.h"
 #include <cctype>
 #include <unordered_map>
+#include <unordered_set>
+#include <algorithm> 
+
+using namespace std;
 
 char getSoundexCode(char c) {
     static const std::unordered_map<char, char> soundexCodes = {
@@ -21,23 +26,28 @@ char getSoundexCode(char c) {
         return '0'; // Default case for non-mapped characters
     }
 }
-std::string getSoundex(const std::string& name) {
-    std::string soundex(1, toupper(name[0]));
-    char prevCode = getSoundexCode(name[0]);
 
-    for (size_t i = 1; i < name.length() && soundex.length() < 4; ++i) {
-        char code = getSoundexCode(name[i]);
-        if (code != '0' && code != prevCode) {
-            soundex += code;
-            prevCode = code;
-        }
+std::string getSoundex(const std::string& name) {
+    std::unordered_set<char> soundex;
+    soundex.insert(toupper(name[0]));
+    
+    for (size_t i = 1; i < name.length() && soundex.size() < 4; ++i) {
+        soundex.insert(getSoundexCode(name[i]));
     }
-    soundex.resize(4, '0'); // Resize to ensure the Soundex code is exactly 4 characters
-    return soundex;
+    soundex.erase(0);
+    
+    std::string result;
+    for (char c : soundex) {
+        result += c;
+    }
+    
+    std::reverse(result.begin(), result.end());
+    result.resize(4, '0'); // Resize to ensure the Soundex code is exactly 4 characters
+    return result;
 }
 
 std::string generateSoundex(const std::string& name) {
     if (name.empty()) return "";
-
+    
     return getSoundex(name);
 }
