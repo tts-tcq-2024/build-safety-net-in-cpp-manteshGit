@@ -32,9 +32,7 @@ std::string generateSoundex(const std::string& name) {
         }
     }
 
-    while (soundex.length() < 4) {
-        soundex += '0';
-    }
-
+    soundex.resize(4, '0'); // Resize to ensure the Soundex code is exactly 4 characters
+    
     return soundex;
 }
