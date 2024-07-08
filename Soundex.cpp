@@ -18,9 +18,7 @@ char getSoundexCode(char c) {
     }
 }
 
-std::string generateSoundex(const std::string& name) {
-    if (name.empty()) return "";
-
+std::string getSoundex(const std::string& name) {
     std::string soundex(1, toupper(name[0]));
     char prevCode = getSoundexCode(name[0]);
 
@@ -31,8 +29,12 @@ std::string generateSoundex(const std::string& name) {
             prevCode = code;
         }
     }
-
     soundex.resize(4, '0'); // Resize to ensure the Soundex code is exactly 4 characters
-    
     return soundex;
+}
+
+std::string generateSoundex(const std::string& name) {
+    if (name.empty()) return "";
+
+    return getSoundex(name);
 }
