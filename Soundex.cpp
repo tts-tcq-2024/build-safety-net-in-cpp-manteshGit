@@ -29,12 +29,10 @@ std::string getSoundexCode(const std::string &name) {
 
 std::string removeConsecutiveDuplicates(const std::string &encoded_name) {
     std::string result;
-    if (!encoded_name.empty()) {
-        result += encoded_name[0];
-        for (size_t i = 1; i < encoded_name.length(); ++i) {
-            if (encoded_name[i] != encoded_name[i - 1]) {
-                result += encoded_name[i];
-            }
+    result += encoded_name[0];
+    for (size_t i = 1; i < encoded_name.length(); ++i) {
+        if (encoded_name[i] != encoded_name[i - 1]) {
+            result += encoded_name[i];
         }
     }
     return result;
