@@ -49,7 +49,7 @@ std::string finalizeSoundex(const char first_letter, const std::string &encoded_
 }
 
 std::string generateSoundex(const std::string &name) {
-    if (name.empty()) return "0000";
+    if (name.empty()) return "";
     
     char first_letter = retainFirstLetter(name);
     std::string encoded_name = getSoundexCode(name);
