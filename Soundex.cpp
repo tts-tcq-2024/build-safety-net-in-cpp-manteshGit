@@ -17,7 +17,7 @@ std::string getSoundexCode(const std::string &name) {
         {'R', '6'}
     };
 
-    std::string encoded_name;
+    std::string encoded_name = "";
     for (size_t i = 1; i < name.length(); ++i) {
         char upper_char = toupper(name[i]);
         if (soundex_mapping.find(upper_char) != soundex_mapping.end()) {
@@ -38,21 +38,37 @@ std::string removeConsecutiveDuplicates(const std::string &encoded_name) {
     return result;
 }
 
-std::string finalizeSoundex(const char first_letter, const std::string &encoded_name) {
+std::string appendStr(const char first_letter, const std::string encoded_name){
     std::string result(1, first_letter);
-    result += encoded_name;
-    result = result.substr(0, 4);
+    if(encoded_name.empty() || encoded_name == "") {
+        return result;
+    }
+    return result += encoded_name;
+}
+
+std::string finalizeSoundex(const char first_letter, const std::string encoded_name) {
+    std::string result = appendStr(first_letter, encoded_name);
     while (result.length() < 4) {
         result += '0';
     }
+    //result.resize(4, '0');
     return result;
+}
+
+std::string getSoundex(const std::string &name) {
+    char first_letter = retainFirstLetter(name);
+    std::string encoded_name = getSoundexCode(name);
+    
+    if(encoded_name.empty()) {
+        return finalizeSoundex(first_letter, encoded_name);
+    }
+    
+    encoded_name = removeConsecutiveDuplicates(encoded_name);
+    return finalizeSoundex(first_letter, encoded_name);
 }
 
 std::string generateSoundex(const std::string &name) {
     if (name.empty()) return "";
     
-    char first_letter = retainFirstLetter(name);
-    std::string encoded_name = getSoundexCode(name);
-    encoded_name = removeConsecutiveDuplicates(encoded_name);
-    return finalizeSoundex(first_letter, encoded_name);
+    return getSoundex(name);
 }
