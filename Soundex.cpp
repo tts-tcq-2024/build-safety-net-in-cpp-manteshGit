@@ -3,14 +3,6 @@
 #include <unordered_map>
 #include <cctype>
 
-// Function declarations
-char encodeDigit(char letter);
-bool isVowel(char letter);
-bool isHwFollowedByVowel(const std::string& word, size_t i);
-std::string generateSoundex(const std::string& word);
-
-// Function definitions
-
 char encodeDigit(char letter) {
     static const std::unordered_map<char, char> encoding {
         {'b', '1'}, {'f', '1'}, {'p', '1'}, {'v', '1'},
@@ -26,19 +18,6 @@ char encodeDigit(char letter) {
     return (it == encoding.end()) ? '-' : it->second;
 }
 
-bool isVowel(char letter) {
-    static const std::string vowels = "aeiouy";
-    return vowels.find(letter) != std::string::npos;
-}
-
-bool isHwFollowedByVowel(const std::string& word, size_t i) {
-    if (i > 1 && (word[i - 1] == 'h' || word[i - 1] == 'w')) {
-        char prevLetter = std::tolower(word[i - 2]);
-        return isVowel(prevLetter);
-    }
-    return false;
-}
-
 std::string generateSoundex(const std::string& word) {
     if (word.empty()) return "";
 
@@ -46,24 +25,30 @@ std::string generateSoundex(const std::string& word) {
     encoded += std::toupper(word.front()); // Step 1: Retain the first letter
 
     char lastDigit = '-';
+    char prevEncodedDigit = '-';
+    bool isFirstLetter = true;
+
     for (size_t i = 1; i < word.length() && encoded.length() < 4; ++i) {
         char currentLetter = std::tolower(word[i]);
         char encodedDigit = encodeDigit(currentLetter);
 
-        // Step 2: Encode consonants and skip unnecessary characters
-        if (encodedDigit != '-') {
-            if (encodedDigit != lastDigit) {
-                encoded += encodedDigit;
-                lastDigit = encodedDigit;
-            } else if (isHwFollowedByVowel(word, i)) {
-                encoded += encodedDigit;
-            }
+        if (encodedDigit == '-') {
+            continue; // Skip vowels and unsupported characters
         }
+
+        // Step 2: Encode consonants and handle adjacent letters rule
+        if (isFirstLetter || encodedDigit != prevEncodedDigit) {
+            encoded += encodedDigit;
+        }
+
+        isFirstLetter = false;
+        prevEncodedDigit = encodedDigit;
     }
 
     // Step 3: Pad with zeros if necessary
-    while (encoded.length() < 4)
+    while (encoded.length() < 4) {
         encoded += '0';
+    }
 
     return encoded;
 }
