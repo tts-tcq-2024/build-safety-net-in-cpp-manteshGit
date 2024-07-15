@@ -1,58 +1,69 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <cctype>
 
-char retainFirstLetter(const std::string &name) {
-    return toupper(name[0]);
-}
+// Function declarations
+char encodeDigit(char letter);
+bool isVowel(char letter);
+bool isHwFollowedByVowel(const std::string& word, size_t i);
+std::string generateSoundex(const std::string& word);
 
-std::string getSoundexCode(const std::string &name) {
-    // Define the Soundex digit mapping
-    const std::unordered_map<char, char> soundex_mapping = {
-        {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
-        {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'}, {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
-        {'D', '3'}, {'T', '3'},
-        {'L', '4'},
-        {'M', '5'}, {'N', '5'},
-        {'R', '6'}
+// Function definitions
+
+char encodeDigit(char letter) {
+    static const std::unordered_map<char, char> encoding {
+        {'b', '1'}, {'f', '1'}, {'p', '1'}, {'v', '1'},
+        {'c', '2'}, {'g', '2'}, {'j', '2'}, {'k', '2'}, {'q', '2'},
+        {'s', '2'}, {'x', '2'}, {'z', '2'},
+        {'d', '3'}, {'t', '3'},
+        {'l', '4'},
+        {'m', '5'}, {'n', '5'},
+        {'r', '6'}
     };
 
-    std::string encoded_name;
-    for (size_t i = 1; i < name.length(); ++i) {
-        char upper_char = toupper(name[i]);
-        if (soundex_mapping.find(upper_char) != soundex_mapping.end()) {
-            encoded_name += soundex_mapping.at(upper_char);
+    auto it = encoding.find(letter);
+    return (it == encoding.end()) ? '-' : it->second;
+}
+
+bool isVowel(char letter) {
+    static const std::string vowels = "aeiouy";
+    return vowels.find(letter) != std::string::npos;
+}
+
+bool isHwFollowedByVowel(const std::string& word, size_t i) {
+    if (i > 1 && (word[i - 1] == 'h' || word[i - 1] == 'w')) {
+        char prevLetter = std::tolower(word[i - 2]);
+        return isVowel(prevLetter);
+    }
+    return false;
+}
+
+std::string generateSoundex(const std::string& word) {
+    if (word.empty()) return "";
+
+    std::string encoded = "";
+    encoded += std::toupper(word.front()); // Step 1: Retain the first letter
+
+    char lastDigit = '-';
+    for (size_t i = 1; i < word.length() && encoded.length() < 4; ++i) {
+        char currentLetter = std::tolower(word[i]);
+        char encodedDigit = encodeDigit(currentLetter);
+
+        // Step 2: Encode consonants and skip unnecessary characters
+        if (encodedDigit != '-') {
+            if (encodedDigit != lastDigit) {
+                encoded += encodedDigit;
+                lastDigit = encodedDigit;
+            } else if (isHwFollowedByVowel(word, i)) {
+                encoded += encodedDigit;
+            }
         }
     }
-    return encoded_name;
-}
 
-std::string removeConsecutiveDuplicates(const std::string &encoded_name) {
-    std::string result;
-    result += encoded_name[0];
-    for (size_t i = 1; i < encoded_name.length(); ++i) {
-        if (encoded_name[i] != encoded_name[i - 1]) {
-            result += encoded_name[i];
-        }
-    }
-    return result;
-}
+    // Step 3: Pad with zeros if necessary
+    while (encoded.length() < 4)
+        encoded += '0';
 
-std::string finalizeSoundex(const char first_letter, const std::string &encoded_name) {
-    std::string result(1, first_letter);
-    result += encoded_name;
-    result = result.substr(0, 4);
-    while (result.length() < 4) {
-        result += '0';
-    }
-    return result;
-}
-
-std::string generateSoundex(const std::string &name) {
-    if (name.empty()) return "0000";
-    
-    char first_letter = retainFirstLetter(name);
-    std::string encoded_name = getSoundexCode(name);
-    encoded_name = removeConsecutiveDuplicates(encoded_name);
-    return finalizeSoundex(first_letter, encoded_name);
+    return encoded;
 }
