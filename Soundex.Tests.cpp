@@ -7,6 +7,6 @@ TEST(SoundexTest, HandlesEmptyString) {
 }
 
 TEST(SoundexTest, HandlesSingleCharacter) {
-    EXPECT_EQ(generateSoundex("A"), "A\000");
+    EXPECT_EQ(generateSoundex("A"), "A000");
 }
 
